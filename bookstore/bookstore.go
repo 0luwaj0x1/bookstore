@@ -10,7 +10,11 @@ type Book struct {
 	Author string
 	Copies int
 	ID     int
+	PriceCents int
+	DiscountPercent int
 }
+
+type Catalog map[int]Book
 
 func Buy(b Book) (Book, error) {
 	if b.Copies == 0 {
@@ -20,18 +24,23 @@ func Buy(b Book) (Book, error) {
 	return b, nil
 }
 
-func GetAllBooks(catalog map[int]Book) []Book {
+func (c Catalog) GetAllBooks() []Book {
 	result := []Book{}
-	for _, b := range catalog {
+	for _, b := range c {
 		result = append(result, b)
 	}
 	return result
 }
 
-func GetBook(catalog map[int]Book, ID int) (Book, error) {
-	book, ok := catalog[ID]
+func (c Catalog) GetBook(ID int) (Book, error) {
+	book, ok := c[ID]
 	if !ok {
 		return Book{}, fmt.Errorf("ID %d doesn't exist", ID)
 	}
 	return book, nil
+}
+
+func (b Book) NetPriceCents() int {
+	discount := b.DiscountPercent * b.PriceCents / 100
+	return b.PriceCents - discount
 }
